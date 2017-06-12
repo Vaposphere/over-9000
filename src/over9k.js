@@ -28,14 +28,72 @@ function createXPathFromElement(elm) {
     return segs.length ? '/' + segs.join('/') : null;
 };
 
-function lookupElementByXPath(path) {
-    var evaluator = new XPathEvaluator();
-    var result = evaluator.evaluate(path, document.documentElement, null,XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-    return  result.singleNodeValue;
-}
-
 window.events = [];
 window.rawEvents = [];
+
+function selectorForButton(e) {
+  let buttonText = e.textContent;
+
+  return {
+    type: 'xpath',
+    value: `//${e.localName}[contains(., "${buttonText}")]`
+  };
+}
+
+function selectorForInput(e) {
+  if (e.name) {
+    let label = document.querySelector(`label[for="${e.name}"]`);
+    if (label) {
+      let labelText = label.textContent;
+
+      return {
+        type: 'xpath',
+        value: `//label[contains(., "${labelText}")]/following::input[1]`
+      }
+    } else {
+      return {
+        type: 'name',
+        value: e.name
+      };
+    }
+  }
+
+  if (e.placeholder) {
+    return {
+      type: 'css selector',
+      value: `input[placeholder="${e.placeholder}"]`
+    };
+  }
+
+  return selectorForXpath(e);
+}
+
+function selectorForXpath(e) {
+  return {
+    type: 'xpath',
+    value: createXPathFromElement(e)
+  };
+}
+
+function selectorsForClickElement(e) {
+  if (e.localName === 'input') {
+    const buttonTypes = [
+      'submit', 'reset', 'image', 'button'
+    ];
+
+    if (buttonTypes.includes(e.type)) {
+      return selectorForButton(e);
+    }
+
+    return selectorForInput(e);
+  }
+
+  if (e.localName === 'button') {
+    return selectorForButton(e);
+  }
+
+  return selectorForXpath(e);
+}
 
 function formatEvent9k(e) {
   if (e.type === 'DOMContentLoaded') {
@@ -48,20 +106,14 @@ function formatEvent9k(e) {
   if (e.type === 'click') {
     return {
       type: 'clickElement',
-      locator: {
-        type: 'xpath',
-        value: createXPathFromElement(e.target)
-      }
+      locator: selectorsForClickElement(e.target)
     }
   }
 
   if (e.type === 'focusout') {
     return {
       type: 'setElementText',
-      locator: {
-        type: 'xpath',
-        value: createXPathFromElement(e.target)
-      },
+      locator: selectorForInput(e.target),
       text: e.target.value
     }
   }
