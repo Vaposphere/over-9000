@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Test 1 | o9k</title>
+  </head>
+  <body>
+    <iframe id="test-stage" src="https://www.w3schools.com" style="position: fixed; top: 0; left: 0; height: 100vh; width: 100vw; border: none;"></iframe>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io.connect('/');
+
+      socket.on('openWindow', (data) => {
+        console.log('open window');
+        document.querySelector('#test-stage').src = data.url;
+      });
+
+      socket.on('connect', () => {
+        console.log('check 2', socket.connected);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('check 3', socket.connected);
+      });
+
+      frames[0].window.eval('function foo(){ console.log("Im in a frame",window); }');
+    </script>
+  </body>
+</html>

@@ -21,5 +21,10 @@
   "bugs": {
     "url": "https://github.com/Vaposphere/over-9000/issues"
   },
-  "homepage": "https://github.com/Vaposphere/over-9000#readme"
+  "homepage": "https://github.com/Vaposphere/over-9000#readme",
+  "dependencies": {
+    "express": "^4.15.3",
+    "http-proxy": "^1.16.2",
+    "socket.io": "^2.0.3"
+  }
 }
