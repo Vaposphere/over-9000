@@ -68,12 +68,18 @@ function formatEvent9k(e) {
 }
 
 function trackEvent9k(e) {
+  let ui9k = document.querySelector('#ui9k');
+  if (e.path.includes(ui9k)) {
+    return
+  }
+
   let event = formatEvent9k(e);
   if (event) {
     window.events.push(event);
   }
 
   window.rawEvents.push(e);
+  updateEvents();
 }
 
 function exportSeleniumBuilder() {
@@ -102,17 +108,61 @@ function prepareExport() {
 function resetEvents() {
   window.events = [];
   window.rawEvents = [];
+
+  updateEvents();
+}
+
+function renderEvent(event) {
+  switch (event.type) {
+    case 'clickElement':
+      return `
+<li>
+  ${event.type}:
+  ${event.locator.type}
+  ${event.locator.value}
+</li>
+  `
+
+    case 'get':
+      return `
+<li>
+  ${event.type}:
+  ${event.url}
+</li>
+  `
+
+    case 'setElementText':
+      return `
+<li>
+  ${event.type}:
+  ${event.locator.type}
+  ${event.locator.value}
+  ${event.text}
+</li>
+  `
+  }
+}
+
+function renderEvents(events) {
+  return events.map(event => renderEvent(event));
+}
+
+function updateEvents() {
+  document.querySelector('#ui9k-events').innerHTML = renderEvents(window.events);
 }
 
 function addUi9k() {
   let ui = `
-<div style="position: absolute; top: 0; left: 0; width: 20%; z-index: 9001">
+<div id="ui9k" style="position: absolute; top: 0; left: 0; width: 20%; z-index: 9001; height: 100vh; overflow: auto">
   <div>
     <a href="#" onclick="resetEvents()">reset</a>
   </div>
   <div>
     <a id="ui9k-link" href="#" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
+  <ol id="ui9k-events">
+    ${renderEvents(window.events)}
+  </ol>
 </div>
 `;
 
