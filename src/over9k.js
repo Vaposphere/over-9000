@@ -30,6 +30,7 @@ function createXPathFromElement(elm) {
 
 window.events = [];
 window.rawEvents = [];
+window.isAssertion = false;
 
 function selectorForButton(e) {
   let buttonText = e.textContent;
@@ -119,11 +120,26 @@ function formatEvent9k(e) {
   }
 }
 
+function formatVerify9k(event) {
+  // TODO: Implement correct verify schema
+  return {
+    type: 'verifyElement',
+    // TODO: Implement value identifier
+    value: 'over 9000',
+    locator: {
+      type: 'xpath',
+      value: createXPathFromElement(event.target)
+    }
+  };
+}
+
+function ctrlEventFilter(e) {
+  const ui9k = document.querySelector('#ui9k');
+  return e.path.includes(ui9k);
+}
+
 function trackEvent9k(e) {
-  let ui9k = document.querySelector('#ui9k');
-  if (e.path.includes(ui9k)) {
-    return
-  }
+  if (ctrlEventFilter(e)) return;
 
   let event = formatEvent9k(e);
   if (event) {
@@ -155,6 +171,33 @@ function prepareExport() {
   let link = document.querySelector('#ui9k-link');
   let content = exportSeleniumBuilder();
   link.href = "data:application/octet-stream," + encodeURIComponent(content);
+}
+
+function prepareAssertion() {
+  window.isAssertion = true;
+}
+
+function assertionEvent(event) {
+  if (ctrlEventFilter(event)) return;
+  if (window.isAssertion && event.type === 'mouseover') {
+    event.target.style['box-shadow'] = 'inset 0px 0px 0px 1px #000';
+  } else if (window.isAssertion && event.type === 'mouseout') {
+    event.target.style['box-shadow'] = '';
+  }
+}
+
+function assertionEventSelected(event) {
+  if (ctrlEventFilter(event)) return;
+  event.preventDefault();
+
+  const formatedEvent = formatVerify9k(event);
+  if (formatedEvent) window.events.push(formatedEvent);
+  window.rawEvents.push(event);
+
+  window.isAssertion = false;
+  updateEvents();
+
+  // TODO; unfocus asserted item
 }
 
 function resetEvents() {
@@ -192,6 +235,16 @@ function renderEvent(event) {
   ${event.text}
 </li>
   `
+
+    case 'verifyElement':
+      return `
+<li>
+${event.type}:
+${event.locator.type}
+${event.locator.value}
+${event.value}
+</li>
+  `
   }
 }
 
@@ -201,6 +254,14 @@ function renderEvents(events) {
 
 function updateEvents() {
   document.querySelector('#ui9k-events').innerHTML = renderEvents(window.events);
+}
+
+function clickHandler(event) {
+  if(!window.isAssertion) {
+    trackEvent9k(event);
+  } else {
+    assertionEventSelected(event);
+  }
 }
 
 function addUi9k() {
@@ -215,6 +276,9 @@ function addUi9k() {
   <div>
     <a id="ui9k-link" href="#" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
+  <div>
+    <a id="ui9k-link" href="#" onclick="prepareAssertion()">Add Assertion</a>
+  </div>
   <ol id="ui9k-events" style="font-size: 10px;">
     ${renderEvents(window.events)}
   </ol>
@@ -227,6 +291,9 @@ function addUi9k() {
 document.addEventListener('DOMContentLoaded', addUi9k);
 
 document.addEventListener('DOMContentLoaded', trackEvent9k);
-document.addEventListener('click', trackEvent9k);
+document.addEventListener('click', clickHandler);
 document.addEventListener('focusin', trackEvent9k);
 document.addEventListener('focusout', trackEvent9k);
+
+document.addEventListener('mouseover', assertionEvent);
+document.addEventListener('mouseout', assertionEvent);
