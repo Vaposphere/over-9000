@@ -213,6 +213,7 @@ function assertionEventSelected(event) {
 
 function resetEvents() {
   window.events = [];
+  window.isAssertion = false;
 
   addEvent({
     type: 'get',
