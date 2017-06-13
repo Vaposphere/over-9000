@@ -95,6 +95,10 @@ function selectorsForClickElement(e) {
   return selectorForXpath(e);
 }
 
+function isTextElement(element) {
+  return element.localName === 'input';
+}
+
 function formatEvent9k(e) {
   if (e.type === 'DOMContentLoaded') {
     return {
@@ -110,12 +114,17 @@ function formatEvent9k(e) {
     }
   }
 
-  if (e.type === 'focusout') {
-    return {
+  if (e.type === 'blur') {
+    if (!isTextElement(e.target)) {
+      // No text setting if bluring on non-input
+      return;
+    }
+
+    addEvent({
       type: 'setElementText',
       locator: selectorForInput(e.target),
       text: e.target.value
-    }
+    });
   }
 }
 
@@ -292,8 +301,14 @@ document.addEventListener('DOMContentLoaded', addUi9k);
 
 document.addEventListener('DOMContentLoaded', trackEvent9k);
 document.addEventListener('click', clickHandler);
+document.addEventListener('blur', trackEvent9k, true);
 document.addEventListener('focusin', trackEvent9k);
-document.addEventListener('focusout', trackEvent9k);
 
 document.addEventListener('mouseover', assertionEvent);
 document.addEventListener('mouseout', assertionEvent);
+
+
+function patchIonic() {
+  document.querySelector('[ng-app]').dataset['tapDisabled'] = "true";
+}
+document.addEventListener('DOMContentLoaded', patchIonic);
