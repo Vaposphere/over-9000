@@ -213,7 +213,10 @@ function assertionEventSelected(event) {
 function resetEvents() {
   window.events = [];
 
-  updateEvents();
+  addEvent({
+    type: 'get',
+    url: window.location.pathname
+  });
 }
 
 function renderEvent(event) {
