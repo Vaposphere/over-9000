@@ -1,3 +1,23 @@
+class Assertion {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    // TODO: Implement correct verify schema
+    return {
+      type: 'verifyElement',
+      // TODO: Implement value identifier
+      value: 'over 9000',
+      locator: {
+        type: 'xpath',
+        value: createXPathFromElement(this._element)
+      }
+    };
+  }
+}
+
+
 function createXPathFromElement(elm) {
     var allNodes = document.getElementsByTagName('*');
     for (var segs = []; elm && elm.nodeType == 1; elm = elm.parentNode)
@@ -187,8 +207,8 @@ function assertionEventSelected(event) {
   if (ctrlEventFilter(event)) return;
   event.preventDefault();
 
-  const formatedEvent = formatVerify9k(event);
-  addEvent(formatedEvent);
+  const assertion = new Assertion(event.target);
+  addEvent(assertion.toEvent());
 
   window.isAssertion = false;
 
