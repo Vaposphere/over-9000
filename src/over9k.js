@@ -189,6 +189,7 @@ function prepareAssertion() {
 
 function assertionEvent(event) {
   if (ctrlEventFilter(event)) return;
+
   if (window.isAssertion && event.type === 'mouseover') {
     event.target.style['box-shadow'] = 'inset 0px 0px 0px 1px #000';
   } else if (window.isAssertion && event.type === 'mouseout') {
@@ -207,7 +208,7 @@ function assertionEventSelected(event) {
 
   window.isAssertion = false;
 
-  // TODO; unfocus asserted item
+  event.target.style['box-shadow'] = '';
 }
 
 function resetEvents() {
