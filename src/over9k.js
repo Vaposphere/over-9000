@@ -278,8 +278,8 @@ function clickHandler(event) {
 
 function addUi9k() {
   let ui = `
-<div id="ui9k" style="position: absolute; top: 0; left: 0; width: 20%; z-index: 9001; height: 100vh; overflow: auto; box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.75); font-family: 'Roboto', sans-serif;">
-  <div style="background: #f8f8f8; padding: 10px 0;">
+<div id="ui9k" style="position: absolute; top: 0; left: 0; width: 20%; z-index: 9001; height: 100vh; overflow: auto; box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.75); font-family: 'Roboto', sans-serif; display: flex; flex-direction: column">
+  <div style="background: #f8f8f8; padding: 10px 0">
     <div style="padding: 0 20px;">Over 9000</div>
   </div>
   <div>
@@ -291,7 +291,7 @@ function addUi9k() {
   <div>
     <a style="curstor: pointer" href="#" onclick="prepareAssertion()">Add Assertion</a>
   </div>
-  <ol id="ui9k-events" style="font-size: 10px;">
+  <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
     ${renderEvents(window.events)}
   </ol>
 </div>
