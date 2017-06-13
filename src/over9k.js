@@ -29,7 +29,6 @@ function createXPathFromElement(elm) {
 };
 
 window.events = [];
-window.rawEvents = [];
 window.isAssertion = false;
 
 function selectorForButton(e) {
@@ -146,7 +145,6 @@ function trackEvent9k(e) {
     window.events.push(event);
   }
 
-  window.rawEvents.push(e);
   updateEvents();
 }
 
@@ -192,7 +190,6 @@ function assertionEventSelected(event) {
 
   const formatedEvent = formatVerify9k(event);
   if (formatedEvent) window.events.push(formatedEvent);
-  window.rawEvents.push(event);
 
   window.isAssertion = false;
   updateEvents();
@@ -202,7 +199,6 @@ function assertionEventSelected(event) {
 
 function resetEvents() {
   window.events = [];
-  window.rawEvents = [];
 
   updateEvents();
 }
