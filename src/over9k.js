@@ -290,7 +290,7 @@ function addUi9k() {
     <a style="cursor: pointer" id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a style="curstor: pointer" href="#" onclick="prepareAssertion()">Add Assertion</a>
+    <a style="cursor: pointer" onclick="prepareAssertion()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
     ${renderEvents(window.events)}
