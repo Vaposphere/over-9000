@@ -300,18 +300,18 @@ function addUi9k() {
   document.body.insertAdjacentHTML('beforeend', ui);
   document.body.style.marginLeft = '20%';
 }
-document.addEventListener('DOMContentLoaded', addUi9k);
+document.addEventListener('DOMContentLoaded', addUi9k, true);
 
-document.addEventListener('DOMContentLoaded', trackEvent9k);
-document.addEventListener('click', clickHandler);
+document.addEventListener('DOMContentLoaded', trackEvent9k, true);
+document.addEventListener('click', clickHandler, true);
 document.addEventListener('blur', trackEvent9k, true);
-document.addEventListener('focusin', trackEvent9k);
+document.addEventListener('focusin', trackEvent9k, true);
 
-document.addEventListener('mouseover', assertionEvent);
-document.addEventListener('mouseout', assertionEvent);
+document.addEventListener('mouseover', assertionEvent, true);
+document.addEventListener('mouseout', assertionEvent, true);
 
 
 function patchIonic() {
   document.querySelector('[ng-app]').dataset['tapDisabled'] = "true";
 }
-document.addEventListener('DOMContentLoaded', patchIonic);
+document.addEventListener('DOMContentLoaded', patchIonic, true);
