@@ -137,15 +137,18 @@ function ctrlEventFilter(e) {
   return e.path.includes(ui9k);
 }
 
+function addEvent(event) {
+  window.events.push(event);
+  updateEvents();
+}
+
 function trackEvent9k(e) {
   if (ctrlEventFilter(e)) return;
 
   let event = formatEvent9k(e);
   if (event) {
-    window.events.push(event);
+    addEvent(event);
   }
-
-  updateEvents();
 }
 
 function exportSeleniumBuilder() {
@@ -189,10 +192,11 @@ function assertionEventSelected(event) {
   event.preventDefault();
 
   const formatedEvent = formatVerify9k(event);
-  if (formatedEvent) window.events.push(formatedEvent);
+  if (formatedEvent) {
+    addEvent(formatedEvent);
+  }
 
   window.isAssertion = false;
-  updateEvents();
 
   // TODO; unfocus asserted item
 }
