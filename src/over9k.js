@@ -283,13 +283,13 @@ function addUi9k() {
     <div style="padding: 0 20px;">Over 9000</div>
   </div>
   <div>
-    <a href="#" onclick="resetEvents()">reset</a>
+    <a style="cursor: pointer" onclick="resetEvents()">reset</a>
   </div>
   <div>
-    <a id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
+    <a style="cursor: pointer" id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a href="#" onclick="prepareAssertion()">Add Assertion</a>
+    <a style="curstor: pointer" href="#" onclick="prepareAssertion()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px;">
     ${renderEvents(window.events)}
