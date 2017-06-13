@@ -128,25 +128,14 @@ function formatEvent9k(e) {
   }
 }
 
-function formatVerify9k(event) {
-  // TODO: Implement correct verify schema
-  return {
-    type: 'verifyElement',
-    // TODO: Implement value identifier
-    value: 'over 9000',
-    locator: {
-      type: 'xpath',
-      value: createXPathFromElement(event.target)
-    }
-  };
-}
-
 function ctrlEventFilter(e) {
   const ui9k = document.querySelector('#ui9k');
   return e.path.includes(ui9k);
 }
 
 function addEvent(event) {
+  if (!event) return;
+
   window.events.push(event);
   updateEvents();
 }
@@ -154,10 +143,7 @@ function addEvent(event) {
 function trackEvent9k(e) {
   if (ctrlEventFilter(e)) return;
 
-  let event = formatEvent9k(e);
-  if (event) {
-    addEvent(event);
-  }
+  addEvent(formatEvent9k(e));
 }
 
 function exportSeleniumBuilder() {
@@ -202,9 +188,7 @@ function assertionEventSelected(event) {
   event.preventDefault();
 
   const formatedEvent = formatVerify9k(event);
-  if (formatedEvent) {
-    addEvent(formatedEvent);
-  }
+  addEvent(formatedEvent);
 
   window.isAssertion = false;
 
