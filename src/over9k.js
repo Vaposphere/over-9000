@@ -178,7 +178,7 @@ function exportSeleniumBuilder() {
 }
 
 function prepareExport() {
-  let link = document.querySelector('#ui9k-link');
+  let link = document.querySelector('#ui9k-export-builder');
   let content = exportSeleniumBuilder();
   link.href = "data:application/octet-stream," + encodeURIComponent(content);
 }
@@ -286,10 +286,10 @@ function addUi9k() {
     <a href="#" onclick="resetEvents()">reset</a>
   </div>
   <div>
-    <a id="ui9k-link" href="#" onclick="prepareExport()">Export Selenium Builder</a>
+    <a id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a id="ui9k-link" href="#" onclick="prepareAssertion()">Add Assertion</a>
+    <a href="#" onclick="prepareAssertion()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px;">
     ${renderEvents(window.events)}
