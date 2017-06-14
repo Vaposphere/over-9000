@@ -355,7 +355,7 @@ function addUi9k() {
   <div>
     <a style="cursor: pointer" onclick="assertionRecorder.toggle(); eventRecorder.toggle()">Add Assertion</a>
   </div>
-  <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
+  <ol id="ui9k-events" style="font-size: 10px; overflow: auto; flex-grow: 1">
     ${renderEvents(window.events)}
   </ol>
 </div>
