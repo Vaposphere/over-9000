@@ -188,7 +188,7 @@ function prepareExport() {
   link.href = "data:application/octet-stream," + encodeURIComponent(content);
 }
 
-class AssertionBuilder {
+class AssertionRecorder {
   constructor() {
     this._active = false;
   }
@@ -259,11 +259,11 @@ class AssertionBuilder {
   }
 }
 
-window.assertionBuilder = new AssertionBuilder();
+window.assertionRecorder = new AssertionRecorder();
 
 function resetEvents() {
   window.events = [];
-  window.assertionBuilder.stop();
+  window.assertionRecorder.stop();
 
   addEvent({
     type: 'get',
@@ -321,11 +321,11 @@ function updateEvents() {
 }
 
 function clickHandler(event) {
-  if(assertionBuilder.isActive) {
+  if(assertionRecorder.isActive) {
     if (ctrlEventFilter(event)) return;
     event.preventDefault();
 
-    assertionBuilder.pick();
+    assertionRecorder.pick();
   } else {
     trackEvent9k(event);
   }
@@ -344,7 +344,7 @@ function addUi9k() {
     <a style="cursor: pointer" id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a style="cursor: pointer" onclick="assertionBuilder.toggle()">Add Assertion</a>
+    <a style="cursor: pointer" onclick="assertionRecorder.toggle()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
     ${renderEvents(window.events)}
