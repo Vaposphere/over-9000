@@ -1,6 +1,59 @@
+class ElementLocator {
+  constructor(element) {
+    this._element = element;
+  }
+
+  byXpath() {
+    return {
+      type: 'xpath',
+      value: createXPathFromElement(this._element)
+    };
+  }
+
+  byText() {
+    const text = this._element.textContent;
+
+    return {
+      type: 'xpath',
+      value: `//${this._element.localName}[contains(., "${text}")]`
+    };
+  }
+
+  byId() {
+    return {
+      type: 'id',
+      value: this._element.id
+    };
+  }
+
+  byName() {
+    return {
+      type: 'name',
+      value: this._element.name
+    };
+  }
+
+  byPlaceholder() {
+    return {
+      type: 'css selector',
+      value: `input[placeholder="${this._element.placeholder}"]`
+    };
+  }
+
+  byLabelText() {
+      let text = this._element.textContent;
+
+      return {
+        type: 'xpath',
+        value: `//input[@id=(//label[contains(., "${labelText}")]/@for)]`
+      };
+  }
+}
+
 class Assertion {
   constructor(element) {
     this._element = element;
+    this._locator = new ElementLocator(element);
   }
 
   toEvent() {
@@ -9,10 +62,7 @@ class Assertion {
       type: 'verifyElement',
       // TODO: Implement value identifier
       value: 'over 9000',
-      locator: {
-        type: 'xpath',
-        value: createXPathFromElement(this._element)
-      }
+      locator: this._locator.byXpath()
     };
   }
 }
@@ -50,68 +100,45 @@ function createXPathFromElement(elm) {
 
 window.events = [];
 
-function selectorForButton(e) {
-  let buttonText = e.textContent;
-
-  return {
-    type: 'xpath',
-    value: `//${e.localName}[contains(., "${buttonText}")]`
-  };
-}
-
 function selectorForInput(e) {
-  if (e.name) {
-    let label = document.querySelector(`label[for="${e.name}"]`);
-    if (label) {
-      let labelText = label.textContent;
+  const locator = new ElementLocator(e);
 
-      return {
-        type: 'xpath',
-        value: `//label[contains(., "${labelText}")]/following::input[1]`
-      }
+  if (e.id) {
+    let label = document.querySelector(`label[for="${e.id}"]`);
+    if (label) {
+      return locator.byLabelText();
     } else {
-      return {
-        type: 'name',
-        value: e.name
-      };
+      return locator.byName();
     }
   }
 
   if (e.placeholder) {
-    return {
-      type: 'css selector',
-      value: `input[placeholder="${e.placeholder}"]`
-    };
+    return locator.byPlaceholder();
   }
 
-  return selectorForXpath(e);
-}
-
-function selectorForXpath(e) {
-  return {
-    type: 'xpath',
-    value: createXPathFromElement(e)
-  };
+  return locator.byXpath();
 }
 
 function selectorsForClickElement(e) {
+  const locator = new ElementLocator(e);
+
   if (e.localName === 'input') {
     const buttonTypes = [
       'submit', 'reset', 'image', 'button'
     ];
 
     if (buttonTypes.includes(e.type)) {
-      return selectorForButton(e);
+      return locator.byText();
     }
 
     return selectorForInput(e);
   }
 
   if (e.localName === 'button') {
-    return selectorForButton(e);
+    return locator.byText();
   }
 
-  return selectorForXpath(e);
+  return locator.byXpath();
 }
 
 function isTextElement(element) {
