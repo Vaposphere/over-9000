@@ -49,7 +49,6 @@ function createXPathFromElement(elm) {
 };
 
 window.events = [];
-window.isAssertion = false;
 
 function selectorForButton(e) {
   let buttonText = e.textContent;
@@ -189,35 +188,82 @@ function prepareExport() {
   link.href = "data:application/octet-stream," + encodeURIComponent(content);
 }
 
-function prepareAssertion() {
-  window.isAssertion = true;
-}
+class AssertionBuilder {
+  constructor() {
+    this._active = false;
+  }
 
-function assertionEvent(event) {
-  if (ctrlEventFilter(event)) return;
+  get isActive() {
+    return this._active;
+  }
 
-  if (window.isAssertion && event.type === 'mouseover') {
-    event.target.style['box-shadow'] = 'inset 0px 0px 0px 1px #000';
-  } else if (window.isAssertion && event.type === 'mouseout') {
-    event.target.style['box-shadow'] = '';
+  start() {
+    this._active = true;
+    this.setupHandlers();
+  }
+
+  stop() {
+    this._active = false;
+    this.teardownHandlers();
+    this.blurElement();
+  }
+
+  toggle() {
+    this._active ? this.stop() : this.start();
+  }
+
+  handleEvent(event) {
+    if (ctrlEventFilter(event)) return;
+
+    switch(event.type) {
+      case 'mouseover':
+        this.focusElement(event.target);
+      break;
+
+      case 'click':
+        this.pick();
+      break;
+    }
+  }
+
+  setupHandlers() {
+    document.addEventListener('mouseover', this, true);
+    document.addEventListener('click', this, true);
+  }
+
+  teardownHandlers() {
+    document.removeEventListener('mouseover', this, true);
+    document.removeEventListener('click', this, true);
+  }
+
+  blurElement() {
+    if (this._focusedElement) {
+      this._focusedElement.style = this._styleBackup;
+    }
+  }
+
+  focusElement(element) {
+    this.blurElement();
+
+    this._styleBackup = element.style;
+    element.style['box-shadow'] = 'inset 0px 0px 0px 1px #000';
+
+    this._focusedElement = element;
+  }
+
+  pick() {
+    const assertion = new Assertion(this._focusedElement);
+    addEvent(assertion.toEvent());
+
+    this.stop();
   }
 }
 
-function assertionEventSelected(event) {
-  if (ctrlEventFilter(event)) return;
-  event.preventDefault();
-
-  const assertion = new Assertion(event.target);
-  addEvent(assertion.toEvent());
-
-  window.isAssertion = false;
-
-  event.target.style['box-shadow'] = '';
-}
+window.assertionBuilder = new AssertionBuilder();
 
 function resetEvents() {
   window.events = [];
-  window.isAssertion = false;
+  window.assertionBuilder.stop();
 
   addEvent({
     type: 'get',
@@ -275,10 +321,13 @@ function updateEvents() {
 }
 
 function clickHandler(event) {
-  if(!window.isAssertion) {
-    trackEvent9k(event);
+  if(assertionBuilder.isActive) {
+    if (ctrlEventFilter(event)) return;
+    event.preventDefault();
+
+    assertionBuilder.pick();
   } else {
-    assertionEventSelected(event);
+    trackEvent9k(event);
   }
 }
 
@@ -295,7 +344,7 @@ function addUi9k() {
     <a style="cursor: pointer" id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a style="cursor: pointer" onclick="prepareAssertion()">Add Assertion</a>
+    <a style="cursor: pointer" onclick="assertionBuilder.toggle()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
     ${renderEvents(window.events)}
@@ -312,9 +361,6 @@ document.addEventListener('DOMContentLoaded', trackEvent9k, true);
 document.addEventListener('click', clickHandler, true);
 document.addEventListener('blur', trackEvent9k, true);
 document.addEventListener('focusin', trackEvent9k, true);
-
-document.addEventListener('mouseover', assertionEvent, true);
-document.addEventListener('mouseout', assertionEvent, true);
 
 
 function patchIonic() {
