@@ -159,12 +159,6 @@ function addEvent(event) {
   updateEvents();
 }
 
-function trackEvent9k(e) {
-  if (ctrlEventFilter(e)) return;
-
-  addEvent(formatEvent9k(e));
-}
-
 function exportSeleniumBuilder() {
   let result = {
     type: "script",
@@ -188,9 +182,9 @@ function prepareExport() {
   link.href = "data:application/octet-stream," + encodeURIComponent(content);
 }
 
-class AssertionRecorder {
+class StepRecorder {
   constructor() {
-    this._active = false;
+    this._mode = 'step';
   }
 
   get isActive() {
@@ -205,13 +199,36 @@ class AssertionRecorder {
   stop() {
     this._active = false;
     this.teardownHandlers();
-    this.blurElement();
   }
 
   toggle() {
     this._active ? this.stop() : this.start();
   }
+}
 
+class EventRecorder extends StepRecorder {
+  handleEvent(event) {
+    if (ctrlEventFilter(event)) return;
+
+    addEvent(formatEvent9k(event));
+  }
+
+  setupHandlers() {
+    document.addEventListener('DOMContentLoaded', this, true);
+    document.addEventListener('blur', this, true);
+    document.addEventListener('focusin', this, true);
+    document.addEventListener('click', this, true);
+  }
+
+  teardownHandlers() {
+    document.removeEventListener('DOMContentLoaded', this, true);
+    document.removeEventListener('blur', this, true);
+    document.removeEventListener('focusin', this, true);
+    document.removeEventListener('click', this, true);
+  }
+}
+
+class AssertionRecorder extends StepRecorder {
   handleEvent(event) {
     if (ctrlEventFilter(event)) return;
 
@@ -224,6 +241,12 @@ class AssertionRecorder {
         this.pick();
       break;
     }
+  }
+
+  stop() {
+    this._active = false;
+    this.teardownHandlers();
+    this.blurElement();
   }
 
   setupHandlers() {
@@ -254,16 +277,13 @@ class AssertionRecorder {
   pick() {
     const assertion = new Assertion(this._focusedElement);
     addEvent(assertion.toEvent());
-
-    this.stop();
   }
 }
-
-window.assertionRecorder = new AssertionRecorder();
 
 function resetEvents() {
   window.events = [];
   window.assertionRecorder.stop();
+  window.eventRecorder.start();
 
   addEvent({
     type: 'get',
@@ -320,17 +340,6 @@ function updateEvents() {
   document.querySelector('#ui9k-events').innerHTML = renderEvents(window.events);
 }
 
-function clickHandler(event) {
-  if(assertionRecorder.isActive) {
-    if (ctrlEventFilter(event)) return;
-    event.preventDefault();
-
-    assertionRecorder.pick();
-  } else {
-    trackEvent9k(event);
-  }
-}
-
 function addUi9k() {
   let ui = `
 <div id="ui9k" style="position: absolute; top: 0; left: 0; width: 20%; z-index: 9001; height: 100vh; overflow: auto; box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.75); font-family: 'Roboto', sans-serif; display: flex; flex-direction: column">
@@ -344,7 +353,7 @@ function addUi9k() {
     <a style="cursor: pointer" id="ui9k-export-builder" onclick="prepareExport()">Export Selenium Builder</a>
   </div>
   <div>
-    <a style="cursor: pointer" onclick="assertionRecorder.toggle()">Add Assertion</a>
+    <a style="cursor: pointer" onclick="assertionRecorder.toggle(); eventRecorder.toggle()">Add Assertion</a>
   </div>
   <ol id="ui9k-events" style="font-size: 10px; overflow: auto">
     ${renderEvents(window.events)}
@@ -354,14 +363,12 @@ function addUi9k() {
 
   document.body.insertAdjacentHTML('beforeend', ui);
   document.body.style.marginLeft = '20%';
+
+  window.assertionRecorder = new AssertionRecorder();
+  window.eventRecorder = new EventRecorder();
+  resetEvents();
 }
 document.addEventListener('DOMContentLoaded', addUi9k, true);
-
-document.addEventListener('DOMContentLoaded', trackEvent9k, true);
-document.addEventListener('click', clickHandler, true);
-document.addEventListener('blur', trackEvent9k, true);
-document.addEventListener('focusin', trackEvent9k, true);
-
 
 function patchIonic() {
   document.querySelector('[ng-app]').dataset['tapDisabled'] = "true";
