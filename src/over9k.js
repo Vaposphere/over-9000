@@ -50,20 +50,70 @@ class ElementLocator {
   }
 }
 
-class AssertionEvent {
+class BodyTextAssertion {
+  toEvent() {
+    const bodyText = document.documentElement.innerText;
+    const o9kUiText = window.o9kUi.innerText;
+    const appBodyText = bodyText.substring(0, bodyText.lastIndexOf(o9kUiText));
+
+    return {
+      type: 'assertBodyText',
+      text: appBodyText
+    }
+  }
+}
+
+class TextAssertion {
   constructor(element) {
     this._element = element;
-    this._locator = new ElementLocator(element);
   }
 
   toEvent() {
-    // TODO: Implement correct verify schema
     return {
-      type: 'verifyElement',
-      // TODO: Implement value identifier
-      value: 'over 9000',
-      locator: this._locator.byXpath()
-    };
+      type: 'assertText',
+      locator: selectorsForClickElement(this._element),
+      text: this._element.innerText
+    }
+  }
+}
+
+class TextPresentAssertion {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    return {
+      type: 'assertTextPresent',
+      text: this._element.innerText
+    }
+  }
+}
+
+class ElementValueAssertion {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    return {
+      type: 'assertElementValue',
+      locator: selectorForInput(this._element),
+      value: this._element.value
+    }
+  }
+}
+
+class ElementAssertion {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    return {
+      type: 'assertElementPresent',
+      locator: selectorsForClickElement(this._element)
+    }
   }
 }
 
@@ -235,7 +285,7 @@ class StepRecorder {
   }
 
   eventFilter(e) {
-    const ui9k = document.querySelector('#ui9k');
+    const ui9k = window.o9kUi;
     return e.path.includes(ui9k);
   }
 }
@@ -330,8 +380,21 @@ class AssertionRecorder extends StepRecorder {
   }
 
   pick() {
-    const assertion = new AssertionEvent(this._focusedElement);
-    addEvent(assertion);
+    if (isTextElement(this._focusedElement)) {
+      const assertion = new ElementValueAssertion(this._focusedElement);
+      addEvent(assertion);
+    } else if (this._focusedElement.innerText) {
+      const assertion = new TextAssertion(this._focusedElement);
+      if (assertion.toEvent().locator.value.startsWith('/html')) {
+        const textAssertion = new TextPresentAssertion(this._focusedElement);
+        addEvent(textAssertion);
+      } else {
+        addEvent(assertion);
+      }
+    } else {
+      const assertion = new ElementAssertion(this._focusedElement);
+      addEvent(assertion);
+    }
   }
 }
 
@@ -340,8 +403,11 @@ function resetEvents() {
   window.assertionRecorder.stop();
   window.eventRecorder.start();
 
-  const event = new LoadEvent();
-  addEvent(event);
+  const loadEvent = new LoadEvent();
+  addEvent(loadEvent);
+
+  const textEvent = new BodyTextAssertion();
+  addEvent(textEvent);
 }
 
 function renderEvent(event) {
@@ -373,13 +439,40 @@ function renderEvent(event) {
 </li>
   `
 
-    case 'verifyElement':
+    case 'assertElementValue':
       return `
 <li>
 ${event.type}:
 ${event.locator.type}
 ${event.locator.value}
 ${event.value}
+</li>
+  `
+
+    case 'assertElementPresent':
+      return `
+<li>
+${event.type}:
+${event.locator.type}
+${event.locator.value}
+</li>
+  `
+
+    case 'assertText':
+      return `
+<li>
+${event.type}:
+${event.locator.type}
+${event.locator.value}
+${event.text}
+</li>
+  `
+
+    case 'assertTextPresent':
+      return `
+<li>
+${event.type}:
+${event.text}
 </li>
   `
   }
@@ -417,6 +510,7 @@ function addUi9k() {
   document.body.insertAdjacentHTML('beforeend', ui);
   document.body.style.marginLeft = '20%';
 
+  window.o9kUi = document.querySelector('#ui9k');
   window.assertionRecorder = new AssertionRecorder();
   window.eventRecorder = new EventRecorder();
   resetEvents();
