@@ -15,26 +15,55 @@ const locatorBy = function(locatorType) {
   }
 };
 
-module.exports = {
-  writeOutput(output) {
-    const appendBefore = '    ';
+class ProtractorSteps {
+  static get({url}) {
+    return `browser.get('${url}');`;
+  }
 
-    return `
+  static clickElement({locator}) {
+    return `element(by.${locatorBy(locator.type)}('${locator.value}')).click();`;
+  }
+
+  static setElementText({locator, text}){
+    return `element(by.${locatorBy(locator.type)}('${locator.value}')).sendKeys('${text}');`;
+  }
+}
+
+class ProtractorTestCase {
+  constructor(builderFile) {
+    this._steps = builderFile.steps;
+  }
+
+  transformStep(step) {
+    return ProtractorSteps[step.type](step);
+  }
+
+  transformSteps() {
+    return this._steps.map(step => this.transformStep(step));
+  }
+
+  output() {
+    const outputSteps = this.transformSteps();
+    // TODO: properly indent multiline steps
+    const indentedSteps = outputSteps.map(step => `    ${step}`);
+
+    const header = `
 describe('Selenium Test Case', function() {
   it('should execute test case without errors', function() {
-${output.map((s) => `${appendBefore}${s};`).join('\n')}
+`;
+    const footer = `
   });
-});`;
-  },
-  lineForTyp: {
-    get({url}) {
-      return `browser.get('${url}')`;
-    },
-    clickElement({locator}) {
-      return `element(by.${locatorBy(locator.type)}('${locator.value}')).click()`;
-    },
-    setElementText({locator, text}){
-      return `element(by.${locatorBy(locator.type)}('${locator.value}')).sendKeys('${text}')`;
-    }
-  },
+});
+`;
+
+    return `
+${header}
+${indentedSteps.join('\n')}
+${footer}
+`
+  }
+};
+
+module.exports = {
+  ProtractorTestCase
 };
