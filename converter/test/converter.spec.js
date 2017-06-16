@@ -37,6 +37,19 @@ describe('Array', function() {
 
   it('should should convert', function() {
     const testScript = converter(script);
-    expect(testScript).to.equal("\ndescribe(\'Selenium Test Case\', function() {\n  it(\'should execute test case without errors\', function() {\n    browser.get(\'https://addons.mozilla.org/en-GB/firefox/addon/selenium-builder/\');\n    element(by.linkText(\'Add to Firefox\')).click();\n    element(by.css(\'input.email\')).sendKeys(\'jo\');\n  });\n});");
+    expect(testScript).to.equal(
+`
+
+describe(\'Selenium Test Case\', function() {
+  it(\'should execute test case without errors\', function() {
+
+    browser.get(\'https://addons.mozilla.org/en-GB/firefox/addon/selenium-builder/\');
+    element(by.linkText(\'Add to Firefox\')).click();
+    element(by.css(\'input.email\')).sendKeys(\'jo\');
+
+  });
+});
+
+`);
   });
 });
