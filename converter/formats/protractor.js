@@ -1,4 +1,4 @@
-const locatorBy = function (locatorType) {
+const locatorBy = function(locatorType) {
   switch (locatorType) {
     case "xpath":
       return "xpath";
