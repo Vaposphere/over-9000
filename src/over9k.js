@@ -50,7 +50,7 @@ class ElementLocator {
   }
 }
 
-class Assertion {
+class AssertionEvent {
   constructor(element) {
     this._element = element;
     this._locator = new ElementLocator(element);
@@ -64,6 +64,42 @@ class Assertion {
       value: 'over 9000',
       locator: this._locator.byXpath()
     };
+  }
+}
+
+class LoadEvent {
+  toEvent() {
+    return {
+      type: 'get',
+      url: window.location.pathname
+    }
+  }
+}
+
+class ClickEvent {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    return {
+      type: 'clickElement',
+      locator: selectorsForClickElement(this._element)
+    }
+  }
+}
+
+class SetTextEvent {
+  constructor(element) {
+    this._element = element;
+  }
+
+  toEvent() {
+    return {
+      type: 'setElementText',
+      locator: selectorForInput(this._element),
+      text: this._element.value
+    }
   }
 }
 
@@ -145,44 +181,10 @@ function isTextElement(element) {
   return element.localName === 'input';
 }
 
-function formatEvent9k(e) {
-  if (e.type === 'DOMContentLoaded') {
-    return {
-      type: 'get',
-      url: window.location.pathname
-    }
-  }
-
-  if (e.type === 'click') {
-    return {
-      type: 'clickElement',
-      locator: selectorsForClickElement(e.target)
-    }
-  }
-
-  if (e.type === 'blur') {
-    if (!isTextElement(e.target)) {
-      // No text setting if bluring on non-input
-      return;
-    }
-
-    addEvent({
-      type: 'setElementText',
-      locator: selectorForInput(e.target),
-      text: e.target.value
-    });
-  }
-}
-
-function ctrlEventFilter(e) {
-  const ui9k = document.querySelector('#ui9k');
-  return e.path.includes(ui9k);
-}
-
 function addEvent(event) {
   if (!event) return;
 
-  window.events.push(event);
+  window.events.push(event.toEvent());
   updateEvents();
 }
 
@@ -231,13 +233,36 @@ class StepRecorder {
   toggle() {
     this._active ? this.stop() : this.start();
   }
+
+  eventFilter(e) {
+    const ui9k = document.querySelector('#ui9k');
+    return e.path.includes(ui9k);
+  }
 }
 
 class EventRecorder extends StepRecorder {
-  handleEvent(event) {
-    if (ctrlEventFilter(event)) return;
+  handleEvent(e) {
+    if (this.eventFilter(e)) return;
 
-    addEvent(formatEvent9k(event));
+    if (e.type === 'DOMContentLoaded') {
+      const event = new LoadEvent();
+      addEvent(event);
+    }
+
+    if (e.type === 'click') {
+      const event = new ClickEvent(e.target);
+      addEvent(event);
+    }
+
+    if (e.type === 'blur') {
+      if (!isTextElement(e.target)) {
+        // No text setting if bluring on non-input
+        return;
+      }
+
+      const event = new SetTextEvent(e.target);
+      addEvent(event);
+    }
   }
 
   setupHandlers() {
@@ -256,12 +281,12 @@ class EventRecorder extends StepRecorder {
 }
 
 class AssertionRecorder extends StepRecorder {
-  handleEvent(event) {
-    if (ctrlEventFilter(event)) return;
+  handleEvent(e) {
+    if (this.eventFilter(e)) return;
 
-    switch(event.type) {
+    switch(e.type) {
       case 'mouseover':
-        this.focusElement(event.target);
+        this.focusElement(e.target);
       break;
 
       case 'click':
@@ -302,8 +327,8 @@ class AssertionRecorder extends StepRecorder {
   }
 
   pick() {
-    const assertion = new Assertion(this._focusedElement);
-    addEvent(assertion.toEvent());
+    const assertion = new AssertionEvent(this._focusedElement);
+    addEvent(assertion);
   }
 }
 
@@ -312,10 +337,8 @@ function resetEvents() {
   window.assertionRecorder.stop();
   window.eventRecorder.start();
 
-  addEvent({
-    type: 'get',
-    url: window.location.pathname
-  });
+  const event = new LoadEvent();
+  addEvent(event);
 }
 
 function renderEvent(event) {
