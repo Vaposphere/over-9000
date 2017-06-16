@@ -284,6 +284,9 @@ class AssertionRecorder extends StepRecorder {
   handleEvent(e) {
     if (this.eventFilter(e)) return;
 
+    e.stopPropagation();
+    e.preventDefault();
+
     switch(e.type) {
       case 'mouseover':
         this.focusElement(e.target);
