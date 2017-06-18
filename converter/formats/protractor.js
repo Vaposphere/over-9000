@@ -17,20 +17,36 @@ const locatorBy = function(locatorType) {
 
 class ProtractorSteps {
   static get({url}) {
-    return `browser.get('${url}');`;
+    return `browser.get(\`${url}\`);`;
   }
 
   static clickElement({locator}) {
-    return `element(by.${locatorBy(locator.type)}('${locator.value}')).click();`;
+    return `element(by.${locatorBy(locator.type)}(\`${locator.value}\`)).click();`;
   }
 
   static setElementText({locator, text}){
-    return `element(by.${locatorBy(locator.type)}('${locator.value}')).sendKeys('${text}');`;
+    return `element(by.${locatorBy(locator.type)}(\`${locator.value}\`)).sendKeys(\`${text}\`);`;
   }
 
   static assertElementValue({locator, value}){
-    const output = `element(by.${locatorBy(locator.type)}('${locator.value}')).getAttribute('value')`;
-    return `expect(${output}).toEqual('${value}');`;
+    const output = `element(by.${locatorBy(locator.type)}(\`${locator.value}\`)).getAttribute('value')`;
+    return `expect(${output}).toEqual(\`${value}\`);`;
+  }
+
+  static assertElementPresent({locator}) {
+    const output = `element(by.${locatorBy(locator.type)}(\`${locator.value}\`))`;
+    return `expect(${output}.isPresent()).toBeTruthy();`;
+  }
+
+  static assertTextPresent({text}) {
+    const output = `element(by.tagName('html')).getText()`;
+    return `expect(${output}).toContain(\`${text}\`);`;
+  }
+
+  static assertText({locator, text}) {
+    const t = text.trim();
+    const output = `element(by.${locatorBy(locator.type)}(\`${locator.value}\`)).getText()`;
+    return `expect(${output}).toContain(\`${t}\`);`;
   }
 }
 
