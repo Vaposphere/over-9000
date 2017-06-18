@@ -442,9 +442,6 @@ function resetEvents() {
 
   const loadEvent = new LoadEvent();
   addEvent(loadEvent);
-
-  const textEvent = new BodyTextAssertion();
-  addEvent(textEvent);
 }
 
 function renderEvent(event) {
