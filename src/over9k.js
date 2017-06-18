@@ -269,11 +269,35 @@ function isTextElement(element) {
   return element.localName === 'input';
 }
 
+function clearEvents() {
+  window.events = [];
+  storeEvents();
+}
+
+function storeEvents() {
+  window.localStorage[`over9k.steps.${window.location.href}`] = JSON.stringify(window.events);
+}
+
+function loadEvents() {
+  const events = window.localStorage[`over9k.steps.${window.location.href}`];
+  if (!events) return;
+
+  window.events = JSON.parse(events);
+
+  if (window.events.length > 0) {
+    updateEvents();
+  } else {
+    const loadEvent = new LoadEvent();
+    addEvent(loadEvent);
+  }
+}
+
 function addEvent(event) {
   if (!event) return;
 
   window.events.push(event.toEvent());
   updateEvents();
+  storeEvents();
 }
 
 function exportSeleniumBuilder() {
@@ -437,12 +461,12 @@ class AssertionRecorder extends StepRecorder {
 }
 
 function resetEvents() {
-  window.events = [];
   window.assertionRecorder.stop();
   window.eventRecorder.start();
 
-  const loadEvent = new LoadEvent();
-  addEvent(loadEvent);
+  clearEvents();
+
+  loadEvents();
 }
 
 function renderEvent(event) {
@@ -547,8 +571,11 @@ function addUi9k() {
 
   window.o9kUi = document.querySelector('#ui9k');
   window.assertionRecorder = new AssertionRecorder();
+  window.assertionRecorder.stop();
   window.eventRecorder = new EventRecorder();
-  resetEvents();
+  window.eventRecorder.start();
+
+  loadEvents();
 }
 document.addEventListener('DOMContentLoaded', addUi9k, true);
 
