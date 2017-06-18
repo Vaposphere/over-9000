@@ -27,6 +27,11 @@ class ProtractorSteps {
   static setElementText({locator, text}){
     return `element(by.${locatorBy(locator.type)}('${locator.value}')).sendKeys('${text}');`;
   }
+
+  static assertElementValue({locator, value}){
+    const output = `element(by.${locatorBy(locator.type)}('${locator.value}')).getAttribute('value')`;
+    return `expect(${output}).toEqual('${value}');`;
+  }
 }
 
 class ProtractorTestCase {

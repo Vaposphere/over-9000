@@ -24,7 +24,15 @@ describe('Array', function() {
           "type": "css selector",
           "value": "input.email"
         },
-        text: 'jo'
+        text: 'test@example.com'
+      },
+      {
+        "type": "assertElementValue",
+        "locator": {
+          "type": "css selector",
+          "value": "input.email"
+        },
+        value: 'test@example.com'
       }
     ],
     "data": {
@@ -45,7 +53,8 @@ describe(\'Selenium Test Case\', function() {
 
     browser.get(\'https://addons.mozilla.org/en-GB/firefox/addon/selenium-builder/\');
     element(by.linkText(\'Add to Firefox\')).click();
-    element(by.css(\'input.email\')).sendKeys(\'jo\');
+    element(by.css(\'input.email\')).sendKeys(\'test@example.com\');
+    expect(element(by.css(\'input.email\')).getAttribute('value')).toEqual('test@example.com');
 
   });
 });
