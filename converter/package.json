@@ -6,6 +6,9 @@
   "scripts": {
     "test": "mocha test/*.spec.js"
   },
+  "bin": {
+    "o9k": "index.js"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
