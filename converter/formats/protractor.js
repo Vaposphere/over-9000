@@ -40,7 +40,13 @@ class ProtractorTestCase {
   }
 
   transformStep(step) {
-    return ProtractorSteps[step.type](step);
+    const stepProc = ProtractorSteps[step.type];
+    if (stepProc) {
+      return stepProc(step);
+    } else {
+      console.warn(`Unknown step: ${step.type}`);
+      return '';
+    }
   }
 
   transformSteps() {
