@@ -12,20 +12,36 @@ function transform(script) {
 class CLI {
   help() {
     console.log(
-`Usage: o9k [inputFile]
+`Usage: o9k [options] [inputFile]
+
+Options:
+  --fit                                              Use "fit" for focused running instead of "it"
 `);
   }
 
   run() {
-    const input = process.argv[2];
+    let fit = false;
+
+    process.argv.shift();
+
+    if (process.argv[1] === '--fit') {
+      fit = true;
+      process.argv.shift();
+    }
+
+    const input = process.argv[1];
     if (!input) {
       this.help();
       process.exit(1);
     }
 
-    const builderContent = fs.readFileSync(input, 'utf8');
+    const builderFile = fs.readFileSync(input, 'utf8');
+    const builderContent = JSON.parse(builderFile);
 
-    console.log(transform(JSON.parse(builderContent)));
+    const testCase = new selenium.ProtractorTestCase(builderContent);
+    const output = testCase.output({fit});
+
+    console.log(output);
   }
 }
 

@@ -53,14 +53,15 @@ class ProtractorTestCase {
     return this._steps.map(step => this.transformStep(step));
   }
 
-  output() {
+  output({fit = false}) {
+    const itString = fit ? 'fit' : 'it';
     const outputSteps = this.transformSteps();
     // TODO: properly indent multiline steps
     const indentedSteps = outputSteps.map(step => `    ${step}`);
 
     const header = `
 describe('Selenium Test Case', function() {
-  it('should execute test case without errors', function() {
+  ${itString}('should execute test case without errors', function() {
 `;
     const footer = `
   });
