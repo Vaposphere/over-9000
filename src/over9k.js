@@ -40,6 +40,22 @@ class ElementLocator {
     };
   }
 
+  byImage() {
+    const alt = this._element.alt;
+    if (alt) {
+      return {
+        type: 'css selector',
+        value: `img[alt="${alt}"]`
+      };
+    }
+
+    const src = this._element.src;
+    return {
+      type: 'css selector',
+      value: `img[src="${src}"]`
+    };
+  }
+
   byLabelText() {
       let text = this._element.textContent;
 
@@ -222,6 +238,10 @@ function selectorsForClickElement(e) {
 
   if (e.localName === 'button') {
     return locator.byText();
+  }
+
+  if (e.localName === 'img') {
+    return locator.byImage();
   }
 
   return locator.byXpath();
