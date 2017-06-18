@@ -40,6 +40,19 @@ class ElementLocator {
     };
   }
 
+  byLink() {
+    const title = this._element.textContent;
+    if (title) {
+      return this.byText();
+    }
+
+    const href = this._element.href;
+    return {
+      type: 'css selector',
+      value: `a[href="${href}"]`
+    };
+  }
+
   byImage() {
     const alt = this._element.alt;
     if (alt) {
@@ -57,7 +70,7 @@ class ElementLocator {
   }
 
   byLabelText() {
-      let text = this._element.textContent;
+      const text = this._element.textContent;
 
       return {
         type: 'xpath',
@@ -242,6 +255,10 @@ function selectorsForClickElement(e) {
 
   if (e.localName === 'img') {
     return locator.byImage();
+  }
+
+  if (e.localName === 'a') {
+    return locator.byLink();
   }
 
   return locator.byXpath();
