@@ -487,7 +487,7 @@ function renderEvent(event) {
   ${event.locator.type}
   ${event.locator.value}
 </li>
-  `
+  `;
 
     case 'get':
       return `
@@ -495,7 +495,7 @@ function renderEvent(event) {
   ${event.type}:
   ${event.url}
 </li>
-  `
+  `;
 
     case 'setElementText':
       return `
@@ -505,7 +505,7 @@ function renderEvent(event) {
   ${event.locator.value}
   ${event.text}
 </li>
-  `
+  `;
 
     case 'assertElementValue':
       return `
@@ -515,7 +515,7 @@ ${event.locator.type}
 ${event.locator.value}
 ${event.value}
 </li>
-  `
+  `;
 
     case 'assertElementPresent':
       return `
@@ -524,7 +524,7 @@ ${event.type}:
 ${event.locator.type}
 ${event.locator.value}
 </li>
-  `
+  `;
 
     case 'assertText':
       return `
@@ -534,7 +534,7 @@ ${event.locator.type}
 ${event.locator.value}
 ${event.text}
 </li>
-  `
+  `;
 
     case 'assertTextPresent':
       return `
@@ -542,7 +542,7 @@ ${event.text}
 ${event.type}:
 ${event.text}
 </li>
-  `
+  `;
   }
 }
 
