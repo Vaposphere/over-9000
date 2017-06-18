@@ -300,6 +300,15 @@ function addEvent(event) {
   storeEvents();
 }
 
+function removeEvent(index) {
+  if (!index) return;
+
+  window.events.splice(index, 1);
+
+  updateEvents();
+  storeEvents();
+}
+
 function exportSeleniumBuilder() {
   let result = {
     type: "script",
@@ -537,8 +546,21 @@ ${event.text}
   }
 }
 
+function renderDeletableEvent(event, index) {
+  return `
+<div style="display: flex; flex-direction: row">
+  <div style="flex: 0 0 auto">
+    <button onclick="removeEvent(${index})">&times;</button>
+  </div>
+  <div style="flex: 1 1 auto">
+    ${renderEvent(event)}
+  </div>
+</div>
+  `;
+}
+
 function renderEvents(events) {
-  return events.map(event => renderEvent(event));
+  return events.map((event, index) => renderDeletableEvent(event, index));
 }
 
 function updateEvents() {
