@@ -62,7 +62,8 @@ class ElementLocator {
       };
     }
 
-    const src = this._element.src;
+    // Use `attributes` to get src as in HTML, not normalized by DOM
+    const src = this._element.attributes['src'];
     return {
       type: 'css selector',
       value: `img[src="${src}"]`
