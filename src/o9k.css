@@ -1,0 +1,22 @@
+#ui9k {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20%;
+  z-index: 9001;
+  height: 100vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0px 5px 0px rgba(0,0,0,0.75);
+}
+
+#ui9k-events {
+  font-size: 10px;
+  overflow: auto;
+  flex-grow: 1;
+}
+
+#ui9k a {
+  cursor: pointer;
+}
