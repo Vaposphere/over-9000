@@ -275,11 +275,11 @@ function clearEvents() {
 }
 
 function storeEvents() {
-  window.localStorage[`over9k.steps.${window.location.href}`] = JSON.stringify(window.events);
+  window.localStorage[`o9k.steps.${window.location.href}`] = JSON.stringify(window.events);
 }
 
 function loadEvents() {
-  const events = window.localStorage[`over9k.steps.${window.location.href}`];
+  const events = window.localStorage[`o9k.steps.${window.location.href}`];
   if (!events) return;
 
   window.events = JSON.parse(events);
