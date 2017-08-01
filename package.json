@@ -1,6 +1,6 @@
 {
   "name": "over-9000",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "The JavaScript UI test framework with batteries included.",
   "main": "index.js",
   "scripts": {
