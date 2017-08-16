@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Over 9000 - The Autopilot for Human Testing",
+  "version": "0.3",
+  "description": "Make manual UI testing fun again.",
+  
+  "devtools_page": "src/devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:*/*"],
+      "css": ["src/o9k.css"],
+      "js": ["src/o9k.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
